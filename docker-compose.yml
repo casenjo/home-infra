@@ -34,8 +34,8 @@ services:
       - "DNS1=172.20.0.3#5053"
       - "DNS2=1.1.1.1"
     volumes:
-      - "./etc-pihole/:/etc/pihole/"
-      - "./etc-dnsmasq.d/:/etc/dnsmasq.d/"
+      - "./pihole/etc-pihole/:/etc/pihole/"
+      - "./pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/"
     restart: always
 
   cloudflared:
