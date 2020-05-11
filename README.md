@@ -6,6 +6,7 @@ This set up brings up the following services to run in a home server:
 - Pi-Hole: Network-wide adblocker
 - Cloudflared: Provides DNS over HTTPS for Pi-Hole
 - Portainer: Management of the containers
+- Firefly III: Self-hosted finance management
 
 ## Setup
 - Make a copy of `env-example` and save it as `.env`
