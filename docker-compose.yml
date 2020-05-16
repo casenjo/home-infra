@@ -50,6 +50,21 @@ services:
       - "TUNNEL_DNS_UPSTREAM=https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
     restart: always
 
+  openvpn:
+    image: ovpn:latest
+    container_name: openvpn
+    hostname: openvpn
+    networks:
+      pihole:
+    ports:
+      - target: 1194
+        published: 1194
+        protocol: udp
+    volumes:
+      - "ovpn-data-lair:/etc/openvpn"
+    cap_add:
+      - NET_ADMIN
+
   portainer:
     image: portainer/portainer:latest
     container_name: portainer
@@ -82,6 +97,7 @@ services:
       - "firefly_iii_export:/var/www/firefly-iii/storage/export"
       - "firefly_iii_upload:/var/www/firefly-iii/storage/upload"
 
+
 networks:
   pihole:
     ipam:
@@ -92,3 +108,4 @@ volumes:
   portainer_data:
   firefly_iii_export:
   firefly_iii_upload:
+  ovpn-data-lair:
