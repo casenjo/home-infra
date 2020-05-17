@@ -1,0 +1,3 @@
+[submodule "openvpn"]
+	path = openvpn
+	url = git@github.com:kylemanna/docker-openvpn.git
