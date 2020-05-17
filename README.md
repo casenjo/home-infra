@@ -1,5 +1,5 @@
 # home-infra
-Docker setup to contain various containers to run at home. It uses a big part of [this](https://demyx.sh/tutorial/how-to-run-openvpn-and-pi-hole-using-docker-in-a-vps/) guide to make the link between OpenVPN and Pi-Hole and then adds cloudflared for DNSSEC.
+Docker setup to run various containers at home in a self-hosted environment. It uses a big part of [this](https://demyx.sh/tutorial/how-to-run-openvpn-and-pi-hole-using-docker-in-a-vps/) guide to make the link between OpenVPN and Pi-Hole and then adds cloudflared for DNSSEC.
 
 The following services will run:
 
@@ -7,6 +7,7 @@ The following services will run:
 - Cloudflared: Provides DNS over HTTPS for Pi-Hole
 - Portainer: Management of the containers
 - Firefly III: Self-hosted finance management
+- OpenVPN: Private VPN setup to allow use of Pi-Hole from outside
 
 ## Setup
 - Make a copy of `env-example` and save it as `.env`
