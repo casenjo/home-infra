@@ -84,7 +84,7 @@ services:
     hostname: firefly
     ports:
       - target: 80
-        published: 8080
+        published: 8081
     environment:
       - "APP_KEY=${FIREFLY_APP_KEY}"
       - "DB_HOST=${FIREFLY_DB_HOST}"
@@ -96,6 +96,28 @@ services:
     volumes:
       - "firefly_iii_export:/var/www/firefly-iii/storage/export"
       - "firefly_iii_upload:/var/www/firefly-iii/storage/upload"
+
+  unifi-controller:
+    image: linuxserver/unifi-controller
+    container_name: unifi-controller
+    hostname: unifi
+    ports:
+      - target: 3478
+        published: 3478
+        protocol: udp
+      - target: 10001
+        published: 10001
+        protocol: udp
+      - target: 8080
+        published: 8080
+      - target: 8443
+        published: 8443
+    environment:
+      - "PUID=${UNIFI_PUID}"
+      - "GUID=${UNIFI_GUID}"
+    volumes:
+      - "unifi-controller:/config"
+    restart: unless-stopped
 
 
 networks:
@@ -109,3 +131,4 @@ volumes:
   firefly_iii_export:
   firefly_iii_upload:
   ovpn-data-lair:
+  unifi-controller:
