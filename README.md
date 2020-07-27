@@ -8,6 +8,7 @@ The following services will run:
 - Portainer: Management of the containers
 - Firefly III: Self-hosted finance management
 - OpenVPN: Private VPN setup to allow use of Pi-Hole from outside
+- UniFi Controller: Management of Ubiquiti gear
 
 ## Setup
 - Make a copy of `env-example` and save it as `.env`
@@ -18,4 +19,4 @@ The following services will run:
 
 ## How to use
 - If none of the services are running: `docker-compose -d up`
-- If you want to bring up just one of them: `docker-compose -d up pihole|cloudflared|portainer|firefly|openvpn`
+- If you want to bring up just one of them: `docker-compose -d up pihole|cloudflared|portainer|firefly|openvpn|unifi`
