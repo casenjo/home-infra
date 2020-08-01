@@ -77,6 +77,11 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "portainer_data:/data portainer/portainer"
+      - "./portainer:/certs"
+    command:
+      --ssl
+      --sslcert /certs/portainer.crt
+      --sslkey /certs/portainer.key
 
   firefly:
     image: jc5x/firefly-iii:latest

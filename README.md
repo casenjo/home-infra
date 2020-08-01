@@ -16,6 +16,7 @@ The following services will run:
 - If you're running Ubuntu then make sure to visit [this](https://github.com/pi-hole/docker-pi-hole#installing-on-ubuntu) to see what's needed for the DNS resolving.
 - Build the OpenVPN service by going into the `openvpn` folder and running `docker build -t ovpn:latest .`
 - Follow [the Quick Start](https://github.com/kylemanna/docker-openvpn) steps to configure the VPN. For the value of `$OVPN_DATA` use `ovpn-data-lair`
+- Run `portainer/certgen.sh` to generate self-signed certs for portainer
 
 ## How to use
 - If none of the services are running: `docker-compose -d up`
