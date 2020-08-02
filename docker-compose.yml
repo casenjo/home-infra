@@ -88,7 +88,7 @@ services:
     container_name: firefly
     hostname: firefly
     ports:
-      - target: 80
+      - target: 8080
         published: 8081
     environment:
       - "APP_KEY=${FIREFLY_APP_KEY}"
