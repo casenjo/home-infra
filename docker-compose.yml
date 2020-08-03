@@ -1,6 +1,34 @@
 version: "3.5"
 
 services:
+  traefik:
+    image: traefik:v2.2
+    container_name: pihole
+    hostname: traefik
+    networks:
+      - pihole
+      - default
+    dns:
+      - 172.20.0.2
+    ports:
+      - target: 80
+        published: 80
+      - target: 443
+        published: 443
+      - target: 8080
+        published: 8080
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart: unless-stopped
+    command:
+      --providers.docker=true
+      --providers.docker.network=discovery
+      --providers.docker.exposedbydefault=true
+      --api.insecure=true
+      --api.dashboard=true
+      --entrypoints.http.address=:80
+      --log.level=DEBUG
+      
   pihole:
     image: pihole/pihole:latest
     container_name: pihole
