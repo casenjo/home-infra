@@ -1,12 +1,6 @@
 version: "3.5"
 
 services:
-  traefik:
-    image: traefik:v2.2
-    container_name: traefik
-    hostname: traefik
-
-
   pihole:
     image: pihole/pihole:latest
     container_name: pihole
