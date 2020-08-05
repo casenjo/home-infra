@@ -7,7 +7,7 @@ services:
     domainname: docker
     hostname: traefik
     networks:
-      - pihole
+      - traefik
       - default
     dns:
       - 172.20.0.2
@@ -24,19 +24,68 @@ services:
       # Enable Docker provider
       - "--providers.docker=true"
       # Defines the Docker network to use for connections to all containers
-      - "--providers.docker.network=pihole"
+      - "--providers.docker.network=traefik"
       # This is false so I can selectively add apps into Traefik
       - "--providers.docker.exposedbydefault=false"
       # Enable insecure mode to access dashboard at :8080/dashboard
       - "--api.insecure=true"
       - "--api.dashboard=true"
       # Routing
+      ## Define an entrypoint called web to listen on port 80
       - "--entrypoints.web.address=:80"
+      ## Define an entrypoint called websecure to listen on port 443
+      - "--entrypoints.websecure.address=:443"
       # Logging
       - "--log.level=DEBUG"
 
+  portainer:
+    image: portainer/portainer:latest
+    container_name: portainer
+    domainname: docker
+    hostname: portainer
+    networks:
+      - traefik
+      - default
+    ports:
+      - target: 8000
+        published: 8000
+      - target: 9000
+        published: 9000
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "portainer_data:/data portainer/portainer"
+    #   - "./portainer:/certs"
+    # command:
+    #   --ssl
+    #   --sslcert /certs/portainer.crt
+    #   --sslkey /certs/portainer.key
+    labels:
+      # Enable Traefik for this container (required when using
+      # --providers.docker.exposedbydefault=false for Traefik's config)
+      - "traefik.enable=true"
+      # Use the special traefik network to communicate with Traefik
+      - "traefik.docker.network=traefik"
+      # Create a service called "portainer" and configure its port to 9000
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      # Add a router named "portainer" to the routers, which is reached when
+      # host is equal to "portainer.docker"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.docker`)"
+      ## Use the websecure entrypoint for this router
+      - "traefik.http.routers.portainer.entrypoints=web"
+      ## Assign the service named "portainer" to this router
+      - "traefik.http.routers.portainer.service=portainer"
+
+
 networks:
+  traefik:
+    ipam:
+      config:
+        - subnet: 172.10.0.0/24
+
   pihole:
     ipam:
       config:
         - subnet: 172.20.0.0/24
+
+volumes:
+  portainer_data:
