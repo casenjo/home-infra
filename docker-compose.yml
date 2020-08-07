@@ -18,25 +18,12 @@ services:
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
     volumes:
+      # Maps to the file that is used in traefik/traefik.toml
+      - "./traefik/dynamic.toml:/dynamic.toml"
+      - "./traefik/traefik.toml:/traefik.toml"
+      - "./portainer:/certs"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     restart: unless-stopped
-    command:
-      # Enable Docker provider
-      - "--providers.docker=true"
-      # Defines the Docker network to use for connections to all containers
-      - "--providers.docker.network=traefik"
-      # This is false so I can selectively add apps into Traefik
-      - "--providers.docker.exposedbydefault=false"
-      # Enable insecure mode to access dashboard at :8080/dashboard
-      - "--api.insecure=true"
-      - "--api.dashboard=true"
-      # Routing
-      ## Define an entrypoint called web to listen on port 80
-      - "--entrypoints.web.address=:80"
-      ## Define an entrypoint called websecure to listen on port 443
-      - "--entrypoints.websecure.address=:443"
-      # Logging
-      - "--log.level=DEBUG"
 
   portainer:
     image: portainer/portainer:latest
@@ -54,11 +41,10 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "portainer_data:/data portainer/portainer"
-    #   - "./portainer:/certs"
-    # command:
-    #   --ssl
-    #   --sslcert /certs/portainer.crt
-    #   --sslkey /certs/portainer.key
+      - "./portainer:/certs"
+    command: --ssl
+      --sslcert /certs/portainer.docker.crt
+      --sslkey /certs/portainer.docker.key
     labels:
       # Enable Traefik for this container (required when using
       # --providers.docker.exposedbydefault=false for Traefik's config)
@@ -66,15 +52,15 @@ services:
       # Use the special traefik network to communicate with Traefik
       - "traefik.docker.network=traefik"
       # Create a service called "portainer" and configure its port to 9000
+      # since its the port used for Portainer's web UI
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.services.portainer.loadbalancer.server.scheme=https"
       # Add a router named "portainer" to the routers, which is reached when
       # host is equal to "portainer.docker"
       - "traefik.http.routers.portainer.rule=Host(`portainer.docker`)"
       ## Use the websecure entrypoint for this router
-      - "traefik.http.routers.portainer.entrypoints=web"
-      ## Assign the service named "portainer" to this router
-      - "traefik.http.routers.portainer.service=portainer"
-
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
 
 networks:
   traefik:

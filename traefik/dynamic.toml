@@ -1,0 +1,4 @@
+# Portainer certs
+[[tls.certificates]]
+  certFile = "/certs/portainer.docker.crt"
+  keyFile = "/certs/portainer.docker.key"
