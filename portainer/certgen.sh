@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOMAIN_NAME_EXTENSION=docker
+source ../.env-traefik
 
 function generateCerts {
     openssl genrsa -out $1.key 2048
