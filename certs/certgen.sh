@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ../.env-traefik
+source ../env-traefik
 
 function generateCerts {
     openssl genrsa -out $1.key 2048
@@ -9,7 +9,7 @@ function generateCerts {
 }
 
 # Generate Portainer certs
-PORTAINER_CERT_FILE_NAME=portainer.$DOMAIN_NAME_EXTENSION
+PORTAINER_CERT_FILE_NAME=portainer.$DOCKER_DOMAIN_NAME_EXTENSION
 if test -f "$PORTAINER_CERT_FILE_NAME.key"; then
     echo "Portainer certificates already exist"
 else
@@ -17,7 +17,7 @@ else
 fi
 
 # Generate Traefik certs
-TRAEFIK_CERT_FILE_NAME=traefik.$DOMAIN_NAME_EXTENSION
+TRAEFIK_CERT_FILE_NAME=traefik.$DOCKER_DOMAIN_NAME_EXTENSION
 if test -f "$TRAEFIK_CERT_FILE_NAME.key"; then
     echo "Traefik certificates already exist"
 else

@@ -4,7 +4,7 @@ services:
   traefik:
     image: traefik:v2.2
     container_name: traefik
-    domainname: docker
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: traefik
     networks:
       - traefik
@@ -12,11 +12,9 @@ services:
     dns:
       - 172.20.0.2
     ports:
-      # The HTTP/HTTPS port
+      # The HTTP and HTTPS ports
       - "80:80"
       - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
     volumes:
       # Maps to the file that is used in traefik/traefik.toml
       - "./traefik/dynamic.toml:/dynamic.toml"
@@ -32,7 +30,10 @@ services:
       - "traefik.enable=true"
       # Use the special traefik network to communicate with Traefik
       - "traefik.docker.network=traefik"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.docker`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      # Add a router named "dashboard" to the routers, which is reached when
+      # host is equal to traefik.${DOCKER_DOMAIN_NAME_EXTENSION}
+      # and it has /api or /dashboard in the path.
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOCKER_DOMAIN_NAME_EXTENSION}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.middlewares=auth"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
@@ -42,7 +43,7 @@ services:
   portainer:
     image: portainer/portainer:latest
     container_name: portainer
-    domainname: docker
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: portainer
     networks:
       - traefik
@@ -57,8 +58,8 @@ services:
       - "portainer_data:/data portainer/portainer"
       - "./certs:/certs"
     command: --ssl
-      --sslcert /certs/portainer.docker.crt
-      --sslkey /certs/portainer.docker.key
+      --sslcert /certs/portainer.${DOCKER_DOMAIN_NAME_EXTENSION}.crt
+      --sslkey /certs/portainer.${DOCKER_DOMAIN_NAME_EXTENSION}.key
     labels:
       # Enable Traefik for this container (required when using
       # --providers.docker.exposedbydefault=false for Traefik's config)
@@ -70,8 +71,8 @@ services:
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
       - "traefik.http.services.portainer.loadbalancer.server.scheme=https"
       # Add a router named "portainer" to the routers, which is reached when
-      # host is equal to "portainer.docker"
-      - "traefik.http.routers.portainer.rule=Host(`portainer.docker`)"
+      # host is equal to portainer.${DOCKER_DOMAIN_NAME_EXTENSION}
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOCKER_DOMAIN_NAME_EXTENSION}`)"
       ## Use the websecure entrypoint for this router
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls=true"
