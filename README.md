@@ -4,6 +4,7 @@ Docker setup to run various containers at home in a self-hosted environment. It 
 
 The following services will run:
 
+- Traefik: Reverse proxy
 - Pi-Hole: Network-wide adblocker
 - Cloudflared: Provides DNS over HTTPS for Pi-Hole
 - Portainer: Management of the containers
@@ -14,12 +15,16 @@ The following services will run:
 ## Setup
 
 - Make a copy of `env-example` and save it as `.env`
+- Make a copy of `env-traefik.example` and save it as `env-traefik`
+- Make a copy of `traefik.toml.example` and save it as `traefik.toml`
+- Make a copy of `dynamic.toml.example` and save it as `dynamic.toml`
 - In `.env`, fill out and/or change the values for the necessary environment variables
-- If you're running Ubuntu then make sure to visit [this](https://github.com/pi-hole/docker-pi-hole#installing-on-ubuntu) to see what's needed for the DNS resolving.
+- Make sure the value for DOCKER_DOMAIN_NAME_EXTENSION in `env-traefik` matches the one in `.env`
+- Go into `certs/` Run `certgen.sh` to generate self-signed certs for portainer and traefik
+  **Note**: If changed the domain extension make sure to update it accordingly in `traefik.toml` and `dynamic.toml` for the certificate filenames
+- If you're running Ubuntu then make sure to visit [this](https://github.com/pi-hole/docker-pi-hole#installing-on-ubuntu) to see what's needed for the DNS resolving
 - Build the OpenVPN service by going into the `openvpn` folder and running `docker build -t ovpn:latest .`
 - Follow [the Quick Start](https://github.com/kylemanna/docker-openvpn) steps to configure the VPN. For the value of `$OVPN_DATA` use `ovpn-data-lair`
-- Run `portainer/certgen.sh` to generate self-signed certs for portainer
-  **Note**: If you want to change the default domain name in the script make sure to update that value accordingly in `docker-compose.yml`, `traefik.toml` and `dynamic.toml`
 
 ## How to use
 
