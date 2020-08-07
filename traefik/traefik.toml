@@ -31,4 +31,4 @@
 # you fetch the server by IP address and the cert validation doesn't like that
 [serversTransport]
   insecureSkipVerify = true
-  rootCAs = ["/certs/portainer.docker.crt"]
+  rootCAs = ["/certs/portainer.docker.crt", "/certs/traefik.docker.crt"]
