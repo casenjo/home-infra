@@ -1,3 +1,4 @@
 .env
-portainer/portainer.crt
-portainer/portainer.key
+.env-traefik
+portainer/*.crt
+portainer/*.key
