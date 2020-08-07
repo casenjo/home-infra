@@ -21,9 +21,14 @@ services:
       # Maps to the file that is used in traefik/traefik.toml
       - "./traefik/dynamic.toml:/dynamic.toml"
       - "./traefik/traefik.toml:/traefik.toml"
-      - "./portainer:/certs"
+      - "./certs:/certs"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     restart: unless-stopped
+    labels:
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.docker`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/,test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0"
 
   portainer:
     image: portainer/portainer:latest
@@ -41,7 +46,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "portainer_data:/data portainer/portainer"
-      - "./portainer:/certs"
+      - "./certs:/certs"
     command: --ssl
       --sslcert /certs/portainer.docker.crt
       --sslkey /certs/portainer.docker.key

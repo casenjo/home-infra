@@ -1,4 +1,4 @@
 .env
 .env-traefik
-portainer/*.crt
-portainer/*.key
+certs/*.crt
+certs/*.key

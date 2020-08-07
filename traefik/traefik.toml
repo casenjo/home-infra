@@ -15,7 +15,6 @@
 
 # Enable insecure mode to access dashboard at :8080/dashboard
 [api]
-  insecure = true
   dashboard = true
 
 # EntryPoints
