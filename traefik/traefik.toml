@@ -1,0 +1,34 @@
+# Logging
+[log]
+  level = "DEBUG"
+
+# Enable Docker provider
+[providers.docker]
+  ## Defines the Docker network to use for connections to all containers
+  network = "traefik"
+  ## This is false so I can selectively add apps into Traefik
+  exposedByDefault = false
+
+[providers.File]
+  filename = "/dynamic.toml"
+  watch = true
+
+# Enable insecure mode to access dashboard at :8080/dashboard
+[api]
+  dashboard = true
+
+# EntryPoints
+[entryPoints]
+  ## Define an entrypoint called web to listen on port 80
+  [entryPoints.web]
+    address = ":80"
+
+  ## Define an entrypoint called websecure to listen on port 443
+  [entryPoints.websecure]
+    address = ":443"
+
+# Make sure that we don't verify the certs because with a Docker provider
+# you fetch the server by IP address and the cert validation doesn't like that
+[serversTransport]
+  insecureSkipVerify = true
+  rootCAs = ["/certs/portainer.docker.crt", "/certs/traefik.docker.crt"]

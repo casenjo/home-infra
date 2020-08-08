@@ -1,4 +1,4 @@
-version: "3.5"
+version: "3.8"
 
 services:
   pihole:
@@ -21,7 +21,7 @@ services:
       - target: 67
         published: 67
         protocol: udp
-      - target: 80 # Must not change, see: https://github.com/pi-hole/docker-pi-hole#tips-and-tricks 
+      - target: 80 # Must not change, see: https://github.com/pi-hole/docker-pi-hole#tips-and-tricks
         published: 80
         protocol: tcp
       - target: 443 # Must not change, see: https://github.com/pi-hole/docker-pi-hole#tips-and-tricks
@@ -68,7 +68,11 @@ services:
   portainer:
     image: portainer/portainer:latest
     container_name: portainer
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: portainer
+    networks:
+      - traefik
+      - default
     ports:
       - target: 8000
         published: 8000
@@ -77,11 +81,26 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "portainer_data:/data portainer/portainer"
-      - "./portainer:/certs"
-    command:
-      --ssl
-      --sslcert /certs/portainer.crt
-      --sslkey /certs/portainer.key
+      - "./certs:/certs"
+    command: --ssl
+      --sslcert /certs/portainer.${DOCKER_DOMAIN_NAME_EXTENSION}.crt
+      --sslkey /certs/portainer.${DOCKER_DOMAIN_NAME_EXTENSION}.key
+    labels:
+      # Enable Traefik for this container (required when using
+      # --providers.docker.exposedbydefault=false for Traefik's config)
+      - "traefik.enable=true"
+      # Use the special traefik network to communicate with Traefik
+      - "traefik.docker.network=traefik"
+      # Create a service called "portainer" and configure its port to 9000
+      # since its the port used for Portainer's web UI
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.services.portainer.loadbalancer.server.scheme=https"
+      # Add a router named "portainer" to the routers, which is reached when
+      # host is equal to portainer.${DOCKER_DOMAIN_NAME_EXTENSION}
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOCKER_DOMAIN_NAME_EXTENSION}`)"
+      ## Use the websecure entrypoint for this router
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
 
   firefly:
     image: jc5x/firefly-iii:latest
@@ -124,8 +143,51 @@ services:
       - "unifi-controller:/config"
     restart: unless-stopped
 
+  traefik:
+    image: traefik:v2.2
+    container_name: traefik
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
+    hostname: traefik
+    networks:
+      - traefik
+      - default
+    dns:
+      - 172.20.0.2
+    ports:
+      # The HTTP and HTTPS ports
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Maps to the file that is used in traefik/traefik.toml
+      - "./traefik/dynamic.toml:/dynamic.toml"
+      - "./traefik/traefik.toml:/traefik.toml"
+      - "./certs:/certs"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart: unless-stopped
+    command: --api=true
+      --api.dashboard=true
+    labels:
+      # Enable Traefik for this container (required when using
+      # --providers.docker.exposedbydefault=false for Traefik's config)
+      - "traefik.enable=true"
+      # Use the special traefik network to communicate with Traefik
+      - "traefik.docker.network=traefik"
+      # Add a router named "dashboard" to the routers, which is reached when
+      # host is equal to traefik.${DOCKER_DOMAIN_NAME_EXTENSION}
+      # and it has /api or /dashboard in the path.
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOCKER_DOMAIN_NAME_EXTENSION}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD}"
 
 networks:
+  traefik:
+    ipam:
+      config:
+        - subnet: 172.10.0.0/24
+
   pihole:
     ipam:
       config:
