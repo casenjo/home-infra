@@ -3,6 +3,3 @@ env-traefik
 
 certs/*.crt
 certs/*.key
-
-traefik/traefik.toml
-traefik/dynamic.toml

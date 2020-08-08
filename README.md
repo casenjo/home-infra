@@ -16,8 +16,6 @@ The following services will run:
 
 - Make a copy of `env-example` and save it as `.env`
 - Make a copy of `env-traefik.example` and save it as `env-traefik`
-- Make a copy of `traefik.toml.example` and save it as `traefik.toml`
-- Make a copy of `dynamic.toml.example` and save it as `dynamic.toml`
 - In `.env`, fill out and/or change the values for the necessary environment variables
 - Make sure the value for DOCKER_DOMAIN_NAME_EXTENSION in `env-traefik` matches the one in `.env`
 - Go into `certs/` Run `certgen.sh` to generate self-signed certs for portainer and traefik
