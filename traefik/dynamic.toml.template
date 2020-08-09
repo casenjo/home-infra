@@ -9,6 +9,6 @@
   keyFile = "/certs/traefik.DOCKER_DOMAIN_NAME_EXTENSION.key"
 
 # Pi-Hole certs
-# [[tls.certificates]]
-#   certFile = "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.crt"
-#   keyFile = "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.key"
+[[tls.certificates]]
+  certFile = "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.crt"
+  keyFile = "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.key"

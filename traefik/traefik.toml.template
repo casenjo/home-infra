@@ -31,4 +31,4 @@
 # you fetch the server by IP address and the cert validation doesn't like that
 [serversTransport]
   insecureSkipVerify = true
-  rootCAs = ["/certs/portainer.DOCKER_DOMAIN_NAME_EXTENSION.crt", "/certs/traefik.DOCKER_DOMAIN_NAME_EXTENSION.crt"]
+  rootCAs = ["/certs/portainer.DOCKER_DOMAIN_NAME_EXTENSION.crt", "/certs/traefik.DOCKER_DOMAIN_NAME_EXTENSION.crt", "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.crt"]
