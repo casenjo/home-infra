@@ -46,4 +46,12 @@ else
     generateCerts $TRAEFIK_CERT_FILE_NAME
 fi
 
+# Generate Pi-Hole certs
+PIHOLE_CERT_FILE_NAME=pihole.$DOCKER_DOMAIN_NAME_EXTENSION
+if test -f "$PIHOLE_CERT_FILE_NAME.key"; then
+    echo "Pi-Hole certificates already exist"
+else
+    generateCerts $PIHOLE_CERT_FILE_NAME
+fi
+
 updateTraefikConfigs
