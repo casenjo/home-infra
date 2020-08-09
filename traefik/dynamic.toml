@@ -1,9 +1,14 @@
 # Portainer certs
 [[tls.certificates]]
-  certFile = "/certs/portainer.docker.crt"
-  keyFile = "/certs/portainer.docker.key"
+  certFile = "/certs/portainer.DOCKER_DOMAIN_NAME_EXTENSION.crt"
+  keyFile = "/certs/portainer.DOCKER_DOMAIN_NAME_EXTENSION.key"
 
 # Traefik certs
 [[tls.certificates]]
-  certFile = "/certs/traefik.docker.crt"
-  keyFile = "/certs/traefik.docker.key"
+  certFile = "/certs/traefik.DOCKER_DOMAIN_NAME_EXTENSION.crt"
+  keyFile = "/certs/traefik.DOCKER_DOMAIN_NAME_EXTENSION.key"
+
+# Pi-Hole certs
+# [[tls.certificates]]
+#   certFile = "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.crt"
+#   keyFile = "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.key"

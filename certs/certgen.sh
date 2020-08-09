@@ -2,6 +2,28 @@
 
 source ../env-traefik
 
+# Needed because OSX's sed needs an extra argument
+# https://stackoverflow.com/questions/3466166/how-to-check-if-running-in-cygwin-mac-or-linux
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     platform=Linux;;
+    Darwin*)    platform=Mac;;
+    # CYGWIN*)    platform=Cygwin;;
+    # MINGW*)     platform=MinGw;;
+    # *)          platform="UNKNOWN:${unameOut}"
+esac
+
+function updateTraefikConfigs {
+    if [ "$platform" = "Mac" ]; then
+        sed -i ".bak" "s/DOCKER_DOMAIN_NAME_EXTENSION/$DOCKER_DOMAIN_NAME_EXTENSION/g" ../traefik/dynamic.toml
+        sed -i ".bak" "s/DOCKER_DOMAIN_NAME_EXTENSION/$DOCKER_DOMAIN_NAME_EXTENSION/g" ../traefik/traefik.toml
+    else
+        sed -i "s/DOCKER_DOMAIN_NAME_EXTENSION/$DOCKER_DOMAIN_NAME_EXTENSION/g" ../traefik/dynamic.toml
+        sed -i "s/DOCKER_DOMAIN_NAME_EXTENSION/$DOCKER_DOMAIN_NAME_EXTENSION/g" ../traefik/traefik.toml
+    fi
+}
+
+
 function generateCerts {
     openssl genrsa -out $1.key 2048
     openssl ecparam -genkey -name secp384r1 -out $1.key
@@ -23,3 +45,5 @@ if test -f "$TRAEFIK_CERT_FILE_NAME.key"; then
 else
     generateCerts $TRAEFIK_CERT_FILE_NAME
 fi
+
+updateTraefikConfigs
