@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.5"
 
 services:
   pihole:
@@ -36,7 +36,7 @@ services:
     volumes:
       - "./pihole/etc-pihole/:/etc/pihole/"
       - "./pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/"
-    restart: always
+    restart: unless-stopped # Revert to always
 
   cloudflared:
     image: crazymax/cloudflared:latest
@@ -48,22 +48,22 @@ services:
     environment:
       - "TZ=America/Toronto"
       - "TUNNEL_DNS_UPSTREAM=https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
-    restart: always
+    restart: unless-stopped # Revert to always
 
-  openvpn:
-    image: ovpn:latest
-    container_name: openvpn
-    hostname: openvpn
-    networks:
-      pihole:
-    ports:
-      - target: 1194
-        published: 1194
-        protocol: udp
-    volumes:
-      - "ovpn-data-lair:/etc/openvpn"
-    cap_add:
-      - NET_ADMIN
+  # openvpn:
+  #   image: ovpn:latest
+  #   container_name: openvpn
+  #   hostname: openvpn
+  #   networks:
+  #     pihole:
+  #   ports:
+  #     - target: 1194
+  #       published: 1194
+  #       protocol: udp
+  #   volumes:
+  #     - "ovpn-data-lair:/etc/openvpn"
+  #   cap_add:
+  #     - NET_ADMIN
 
   portainer:
     image: portainer/portainer:latest
@@ -102,46 +102,46 @@ services:
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls=true"
 
-  firefly:
-    image: jc5x/firefly-iii:latest
-    container_name: firefly
-    hostname: firefly
-    ports:
-      - target: 8080
-        published: 8081
-    environment:
-      - "APP_KEY=${FIREFLY_APP_KEY}"
-      - "DB_HOST=${FIREFLY_DB_HOST}"
-      - "DB_PORT=${FIREFLY_DB_PORT}"
-      - "DB_DATABASE=${FIREFLY_DB_DATABASE}"
-      - "DB_USERNAME=${FIREFLY_DB_USERNAME}"
-      - "DB_PASSWORD=${FIREFLY_DB_PASSWORD}"
-      - "DB_CONNECTION=${FIREFLY_DB_CONNECTION}"
-    volumes:
-      - "firefly_iii_export:/var/www/firefly-iii/storage/export"
-      - "firefly_iii_upload:/var/www/firefly-iii/storage/upload"
+  # firefly:
+  #   image: jc5x/firefly-iii:latest
+  #   container_name: firefly
+  #   hostname: firefly
+  #   ports:
+  #     - target: 8080
+  #       published: 8081
+  #   environment:
+  #     - "APP_KEY=${FIREFLY_APP_KEY}"
+  #     - "DB_HOST=${FIREFLY_DB_HOST}"
+  #     - "DB_PORT=${FIREFLY_DB_PORT}"
+  #     - "DB_DATABASE=${FIREFLY_DB_DATABASE}"
+  #     - "DB_USERNAME=${FIREFLY_DB_USERNAME}"
+  #     - "DB_PASSWORD=${FIREFLY_DB_PASSWORD}"
+  #     - "DB_CONNECTION=${FIREFLY_DB_CONNECTION}"
+  #   volumes:
+  #     - "firefly_iii_export:/var/www/firefly-iii/storage/export"
+  #     - "firefly_iii_upload:/var/www/firefly-iii/storage/upload"
 
-  unifi-controller:
-    image: linuxserver/unifi-controller
-    container_name: unifi-controller
-    hostname: unifi
-    ports:
-      - target: 3478
-        published: 3478
-        protocol: udp
-      - target: 10001
-        published: 10001
-        protocol: udp
-      - target: 8080
-        published: 8080
-      - target: 8443
-        published: 8443
-    environment:
-      - "PUID=${UNIFI_PUID}"
-      - "GUID=${UNIFI_GUID}"
-    volumes:
-      - "unifi-controller:/config"
-    restart: unless-stopped
+  # unifi-controller:
+  #   image: linuxserver/unifi-controller
+  #   container_name: unifi-controller
+  #   hostname: unifi
+  #   ports:
+  #     - target: 3478
+  #       published: 3478
+  #       protocol: udp
+  #     - target: 10001
+  #       published: 10001
+  #       protocol: udp
+  #     - target: 8080
+  #       published: 8080
+  #     - target: 8443
+  #       published: 8443
+  #   environment:
+  #     - "PUID=${UNIFI_PUID}"
+  #     - "GUID=${UNIFI_GUID}"
+  #   volumes:
+  #     - "unifi-controller:/config"
+  #   restart: unless-stopped
 
   traefik:
     image: traefik:v2.2
@@ -195,7 +195,7 @@ networks:
 
 volumes:
   portainer_data:
-  firefly_iii_export:
-  firefly_iii_upload:
-  ovpn-data-lair:
-  unifi-controller:
+  # firefly_iii_export:
+  # firefly_iii_upload:
+  # ovpn-data-lair:
+  # unifi-controller:
