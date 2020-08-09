@@ -40,7 +40,6 @@ services:
     volumes:
       - "./pihole/etc-pihole/:/etc/pihole/"
       - "./pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/"
-      - "./pihole/etc-lighttpd/external.conf:/etc/lighttpd/external.conf"
     restart: unless-stopped # Revert to always
     labels:
       # Enable Traefik for this container (required when
@@ -52,8 +51,8 @@ services:
       # Domain: pihole.${DOCKER_DOMAIN_NAME_EXTENSION}
       # Entrypoint: websecure
       - "traefik.http.routers.pihole.rule=Host(`pihole.${DOCKER_DOMAIN_NAME_EXTENSION}`)"
-      - "traefik.http.routers.pihole.entrypoints=web"
-      # - "traefik.http.routers.pihole.tls=true"
+      - "traefik.http.routers.pihole.entrypoints=websecure"
+      - "traefik.http.routers.pihole.tls=true"
       # Service: pihole
       # Port:    8880
       - "traefik.http.services.pihole-admin.loadbalancer.server.port=80"
