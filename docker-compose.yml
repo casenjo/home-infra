@@ -22,7 +22,7 @@ services:
       - "./traefik/traefik.toml:/traefik.toml"
       - "./certs:/certs"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    restart: always
+    restart: unless-stopped
     command: --api=true
       --api.dashboard=true
     labels:
@@ -49,7 +49,7 @@ services:
     networks:
       traefik:
         ipv4_address: 172.20.0.3
-      default:
+        #default:
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -202,7 +202,7 @@ services:
       - target: 8080
         published: 8080
       - target: 8443
-        published: 8443
+        published: 8543
     environment:
       - "PUID=${UNIFI_PUID}"
       - "GUID=${UNIFI_GUID}"
