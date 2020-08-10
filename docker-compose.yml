@@ -22,7 +22,7 @@ services:
       - "./traefik/traefik.toml:/traefik.toml"
       - "./certs:/certs"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    restart: unless-stopped
+    restart: always
     command: --api=true
       --api.dashboard=true
     labels:
@@ -78,7 +78,7 @@ services:
     volumes:
       - "./pihole/etc-pihole/:/etc/pihole/"
       - "./pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/"
-    restart: unless-stopped # Revert to always
+    restart: always
     labels:
       # Enable Traefik for this container (required when
       # --providers.docker.exposedbydefault=false is in use)
@@ -114,7 +114,7 @@ services:
     environment:
       - "TZ=America/Toronto"
       - "TUNNEL_DNS_UPSTREAM=https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
-    restart: unless-stopped # Revert to always
+    restart: always
 
   portainer:
     image: portainer/portainer:latest
