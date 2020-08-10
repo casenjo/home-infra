@@ -1,13 +1,55 @@
-version: "3.8"
+version: "3.5"
 
 services:
+  traefik:
+    image: traefik:v2.2
+    container_name: traefik
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
+    hostname: traefik
+    networks:
+      traefik:
+        ipv4_address: 172.20.0.2
+      default:
+    dns:
+      - 172.20.0.3
+    ports:
+      # The HTTP and HTTPS ports
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Maps to the file that is used in traefik/traefik.toml
+      - "./traefik/dynamic.toml:/dynamic.toml"
+      - "./traefik/traefik.toml:/traefik.toml"
+      - "./certs:/certs"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart: always
+    command: --api=true
+      --api.dashboard=true
+    labels:
+      # Enable Traefik for this container (required when using
+      # --providers.docker.exposedbydefault=false for Traefik's config)
+      - "traefik.enable=true"
+      # Use the special traefik network to communicate with Traefik
+      - "traefik.docker.network=traefik"
+      # Add a router named "dashboard" to the routers, which is reached when
+      # host is equal to traefik.${DOCKER_DOMAIN_NAME_EXTENSION}
+      # and it has /api or /dashboard in the path.
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOCKER_DOMAIN_NAME_EXTENSION}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD}"
+
   pihole:
     image: pihole/pihole:latest
     container_name: pihole
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: pihole
     networks:
-      pihole:
-        ipv4_address: 172.20.0.2
+      traefik:
+        ipv4_address: 172.20.0.3
+      default:
     dns:
       - 127.0.0.1
       - 1.1.1.1
@@ -18,52 +60,61 @@ services:
       - target: 53
         published: 53
         protocol: udp
-      - target: 67
-        published: 67
-        protocol: udp
       - target: 80 # Must not change, see: https://github.com/pi-hole/docker-pi-hole#tips-and-tricks
-        published: 80
+        published: 8880
         protocol: tcp
       - target: 443 # Must not change, see: https://github.com/pi-hole/docker-pi-hole#tips-and-tricks
-        published: 443
+        published: 8443
         protocol: tcp
     environment:
+      # Needed to make sure the logs rotate at local midnight instead of UTC
       - "TZ=America/Toronto"
-      - "PROXY_LOCATION=pihole"
+      - "PROXY_LOCATION=pihole.${DOCKER_DOMAIN_NAME_EXTENSION}"
       - "VIRTUAL_PORT=80"
-      - "DNS1=172.20.0.3#5053"
+      - "VIRTUAL_HOST=pihole.${DOCKER_DOMAIN_NAME_EXTENSION}"
+      - "ServerIP=172.20.0.3"
+      - "DNS1=172.20.0.4#5053"
       - "DNS2=1.1.1.1"
     volumes:
       - "./pihole/etc-pihole/:/etc/pihole/"
       - "./pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/"
     restart: always
+    labels:
+      # Enable Traefik for this container (required when
+      # --providers.docker.exposedbydefault=false is in use)
+      - "traefik.enable=true"
+      # Use the special traefik network to communicate with Traefik
+      - "traefik.docker.network=traefik"
+      # Router: pihole
+      # Domain: pihole.${DOCKER_DOMAIN_NAME_EXTENSION}
+      # Entrypoint: websecure
+      - "traefik.http.routers.pihole.rule=Host(`pihole.${DOCKER_DOMAIN_NAME_EXTENSION}`)"
+      - "traefik.http.routers.pihole.entrypoints=websecure"
+      - "traefik.http.routers.pihole.tls=true"
+      # Service: pihole
+      # Port:    80
+      - "traefik.http.services.pihole-admin.loadbalancer.server.port=80"
+      # DNS lookup TCP and UDP routers
+      # Router: pihole-tcp/pihole-udp
+      # Entrypoint: piholedns-tcp/piholedns-udp
+      - "traefik.tcp.routers.pihole-tcp.entrypoints=piholedns-tcp"
+      - "traefik.udp.routers.pihole-udp.entrypoints=piholedns-udp"
+      # Service: piholedns-tcp/piholedns-udp
+      # Port:    53
+      - "traefik.tcp.services.piholedns-tcp.loadbalancer.server.port=53"
+      - "traefik.udp.services.piholedns-udp.loadbalancer.server.port=53"
 
   cloudflared:
     image: crazymax/cloudflared:latest
     container_name: cloudflared
     hostname: cloudflared
     networks:
-      pihole:
-        ipv4_address: 172.20.0.3
+      traefik:
+        ipv4_address: 172.20.0.4
     environment:
       - "TZ=America/Toronto"
       - "TUNNEL_DNS_UPSTREAM=https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
     restart: always
-
-  openvpn:
-    image: ovpn:latest
-    container_name: openvpn
-    hostname: openvpn
-    networks:
-      pihole:
-    ports:
-      - target: 1194
-        published: 1194
-        protocol: udp
-    volumes:
-      - "ovpn-data-lair:/etc/openvpn"
-    cap_add:
-      - NET_ADMIN
 
   portainer:
     image: portainer/portainer:latest
@@ -71,8 +122,8 @@ services:
     domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: portainer
     networks:
-      - traefik
-      - default
+      traefik:
+        ipv4_address: 172.20.0.5
     ports:
       - target: 8000
         published: 8000
@@ -101,6 +152,22 @@ services:
       ## Use the websecure entrypoint for this router
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls=true"
+
+  openvpn:
+    image: ovpn:latest
+    container_name: openvpn
+    hostname: openvpn
+    networks:
+      traefik:
+        ipv4_address: 172.20.0.6
+    ports:
+      - target: 1194
+        published: 1194
+        protocol: udp
+    volumes:
+      - "ovpn-data-lair:/etc/openvpn"
+    cap_add:
+      - NET_ADMIN
 
   firefly:
     image: jc5x/firefly-iii:latest
@@ -143,52 +210,8 @@ services:
       - "unifi-controller:/config"
     restart: unless-stopped
 
-  traefik:
-    image: traefik:v2.2
-    container_name: traefik
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
-    hostname: traefik
-    networks:
-      - traefik
-      - default
-    dns:
-      - 172.20.0.2
-    ports:
-      # The HTTP and HTTPS ports
-      - "80:80"
-      - "443:443"
-    volumes:
-      # Maps to the file that is used in traefik/traefik.toml
-      - "./traefik/dynamic.toml:/dynamic.toml"
-      - "./traefik/traefik.toml:/traefik.toml"
-      - "./certs:/certs"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    restart: unless-stopped
-    command: --api=true
-      --api.dashboard=true
-    labels:
-      # Enable Traefik for this container (required when using
-      # --providers.docker.exposedbydefault=false for Traefik's config)
-      - "traefik.enable=true"
-      # Use the special traefik network to communicate with Traefik
-      - "traefik.docker.network=traefik"
-      # Add a router named "dashboard" to the routers, which is reached when
-      # host is equal to traefik.${DOCKER_DOMAIN_NAME_EXTENSION}
-      # and it has /api or /dashboard in the path.
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOCKER_DOMAIN_NAME_EXTENSION}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=auth"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD}"
-
 networks:
   traefik:
-    ipam:
-      config:
-        - subnet: 172.10.0.0/24
-
-  pihole:
     ipam:
       config:
         - subnet: 172.20.0.0/24

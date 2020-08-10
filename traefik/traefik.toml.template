@@ -27,8 +27,15 @@
   [entryPoints.websecure]
     address = ":443"
 
+  ## Define an entrypoint called piholedns to listen on port 53
+  [entryPoints.piholedns-tcp]
+    address = ":53"
+
+  [entryPoints.piholedns-udp]
+    address = ":53/udp"
+
 # Make sure that we don't verify the certs because with a Docker provider
 # you fetch the server by IP address and the cert validation doesn't like that
 [serversTransport]
   insecureSkipVerify = true
-  rootCAs = ["/certs/portainer.docker.crt", "/certs/traefik.docker.crt"]
+  rootCAs = ["/certs/portainer.DOCKER_DOMAIN_NAME_EXTENSION.crt", "/certs/traefik.DOCKER_DOMAIN_NAME_EXTENSION.crt", "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.crt"]

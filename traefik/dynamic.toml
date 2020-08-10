@@ -1,9 +1,0 @@
-# Portainer certs
-[[tls.certificates]]
-  certFile = "/certs/portainer.docker.crt"
-  keyFile = "/certs/portainer.docker.key"
-
-# Traefik certs
-[[tls.certificates]]
-  certFile = "/certs/traefik.docker.crt"
-  keyFile = "/certs/traefik.docker.key"
