@@ -1,6 +1,46 @@
 version: "3.5"
 
 services:
+  traefik:
+    image: traefik:v2.2
+    container_name: traefik
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
+    hostname: traefik
+    networks:
+      traefik:
+        ipv4_address: 172.20.0.2
+      default:
+    dns:
+      - 172.20.0.3
+    ports:
+      # The HTTP and HTTPS ports
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Maps to the file that is used in traefik/traefik.toml
+      - "./traefik/dynamic.toml:/dynamic.toml"
+      - "./traefik/traefik.toml:/traefik.toml"
+      - "./certs:/certs"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart: unless-stopped
+    command: --api=true
+      --api.dashboard=true
+    labels:
+      # Enable Traefik for this container (required when using
+      # --providers.docker.exposedbydefault=false for Traefik's config)
+      - "traefik.enable=true"
+      # Use the special traefik network to communicate with Traefik
+      - "traefik.docker.network=traefik"
+      # Add a router named "dashboard" to the routers, which is reached when
+      # host is equal to traefik.${DOCKER_DOMAIN_NAME_EXTENSION}
+      # and it has /api or /dashboard in the path.
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOCKER_DOMAIN_NAME_EXTENSION}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD}"
+
   pihole:
     image: pihole/pihole:latest
     container_name: pihole
@@ -76,22 +116,6 @@ services:
       - "TUNNEL_DNS_UPSTREAM=https://1.1.1.1/dns-query,https://1.0.0.1/dns-query"
     restart: unless-stopped # Revert to always
 
-  # openvpn:
-  #   image: ovpn:latest
-  #   container_name: openvpn
-  #   hostname: openvpn
-  #   networks:
-  #     traefik:
-  #       ipv4_address: 172.20.0.6
-  #   ports:
-  #     - target: 1194
-  #       published: 1194
-  #       protocol: udp
-  #   volumes:
-  #     - "ovpn-data-lair:/etc/openvpn"
-  #   cap_add:
-  #     - NET_ADMIN
-
   portainer:
     image: portainer/portainer:latest
     container_name: portainer
@@ -129,6 +153,21 @@ services:
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls=true"
 
+  # openvpn:
+  #   image: ovpn:latest
+  #   container_name: openvpn
+  #   hostname: openvpn
+  #   networks:
+  #     traefik:
+  #       ipv4_address: 172.20.0.6
+  #   ports:
+  #     - target: 1194
+  #       published: 1194
+  #       protocol: udp
+  #   volumes:
+  #     - "ovpn-data-lair:/etc/openvpn"
+  #   cap_add:
+  #     - NET_ADMIN
   # firefly:
   #   image: jc5x/firefly-iii:latest
   #   container_name: firefly
@@ -147,7 +186,6 @@ services:
   #   volumes:
   #     - "firefly_iii_export:/var/www/firefly-iii/storage/export"
   #     - "firefly_iii_upload:/var/www/firefly-iii/storage/upload"
-
   # unifi-controller:
   #   image: linuxserver/unifi-controller
   #   container_name: unifi-controller
@@ -169,46 +207,6 @@ services:
   #   volumes:
   #     - "unifi-controller:/config"
   #   restart: unless-stopped
-
-  traefik:
-    image: traefik:v2.2
-    container_name: traefik
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
-    hostname: traefik
-    networks:
-      traefik:
-        ipv4_address: 172.20.0.2
-      default:
-    dns:
-      - 172.20.0.3
-    ports:
-      # The HTTP and HTTPS ports
-      - "80:80"
-      - "443:443"
-    volumes:
-      # Maps to the file that is used in traefik/traefik.toml
-      - "./traefik/dynamic.toml:/dynamic.toml"
-      - "./traefik/traefik.toml:/traefik.toml"
-      - "./certs:/certs"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    restart: unless-stopped
-    command: --api=true
-      --api.dashboard=true
-    labels:
-      # Enable Traefik for this container (required when using
-      # --providers.docker.exposedbydefault=false for Traefik's config)
-      - "traefik.enable=true"
-      # Use the special traefik network to communicate with Traefik
-      - "traefik.docker.network=traefik"
-      # Add a router named "dashboard" to the routers, which is reached when
-      # host is equal to traefik.${DOCKER_DOMAIN_NAME_EXTENSION}
-      # and it has /api or /dashboard in the path.
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOCKER_DOMAIN_NAME_EXTENSION}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=auth"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD}"
 
 networks:
   traefik:
