@@ -9,6 +9,7 @@ services:
     networks:
       traefik:
         ipv4_address: 172.20.0.3
+      default:
     dns:
       - 127.0.0.1
       - 1.1.1.1
