@@ -169,6 +169,9 @@ services:
     container_name: firefly
     domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: firefly
+    networks:
+      traefik:
+        ipv4_address: 172.20.0.7
     environment:
       - "APP_KEY=${FIREFLY_APP_KEY}"
       - "DB_HOST=${FIREFLY_DB_HOST}"
@@ -192,6 +195,7 @@ services:
       # Add a router named "firefly" to the routers, which is reached when
       # host is equal to firefly.${DOCKER_DOMAIN_NAME_EXTENSION}
       - "traefik.http.routers.firefly.rule=Host(`firefly.${DOCKER_DOMAIN_NAME_EXTENSION}`)"
+      - "traefik.http.routers.firefly.entrypoints=web"
 
   unifi-controller:
     image: linuxserver/unifi-controller
