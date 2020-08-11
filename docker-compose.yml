@@ -45,7 +45,7 @@ services:
     image: pihole/pihole:latest
     container_name: pihole
     domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
-    hostname: pihole
+    hostname: pi-hole
     networks:
       traefik:
         ipv4_address: 172.20.0.3
