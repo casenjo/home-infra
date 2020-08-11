@@ -124,11 +124,6 @@ services:
     networks:
       traefik:
         ipv4_address: 172.20.0.5
-    ports:
-      - target: 8000
-        published: 8000
-      - target: 9000
-        published: 9000
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "portainer_data:/data portainer/portainer"
