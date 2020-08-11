@@ -167,10 +167,8 @@ services:
   firefly:
     image: jc5x/firefly-iii:latest
     container_name: firefly
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: firefly
-    ports:
-      - target: 8080
-        published: 8081
     environment:
       - "APP_KEY=${FIREFLY_APP_KEY}"
       - "DB_HOST=${FIREFLY_DB_HOST}"
@@ -182,6 +180,18 @@ services:
     volumes:
       - "firefly_iii_export:/var/www/firefly-iii/storage/export"
       - "firefly_iii_upload:/var/www/firefly-iii/storage/upload"
+    labels:
+      # Enable Traefik for this container (required when using
+      # --providers.docker.exposedbydefault=false for Traefik's config)
+      - "traefik.enable=true"
+      # Use the special traefik network to communicate with Traefik
+      - "traefik.docker.network=traefik"
+      # Create a service called "firefly" and configure its port to 8080
+      # since its the port used for Firefly III
+      - "traefik.http.services.firefly.loadbalancer.server.port=8080"
+      # Add a router named "firefly" to the routers, which is reached when
+      # host is equal to firefly.${DOCKER_DOMAIN_NAME_EXTENSION}
+      - "traefik.http.routers.firefly.rule=Host(`firefly.${DOCKER_DOMAIN_NAME_EXTENSION}`)"
 
   unifi-controller:
     image: linuxserver/unifi-controller
