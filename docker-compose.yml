@@ -60,12 +60,6 @@ services:
       - target: 53
         published: 53
         protocol: udp
-      - target: 80 # Must not change, see: https://github.com/pi-hole/docker-pi-hole#tips-and-tricks
-        published: 8880
-        protocol: tcp
-      - target: 443 # Must not change, see: https://github.com/pi-hole/docker-pi-hole#tips-and-tricks
-        published: 8443
-        protocol: tcp
     environment:
       # Needed to make sure the logs rotate at local midnight instead of UTC
       - "TZ=America/Toronto"
