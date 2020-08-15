@@ -12,3 +12,8 @@
 [[tls.certificates]]
   certFile = "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.crt"
   keyFile = "/certs/pihole.DOCKER_DOMAIN_NAME_EXTENSION.key"
+
+# Firefly certs
+[[tls.certificates]]
+  certFile = "/certs/firefly.DOCKER_DOMAIN_NAME_EXTENSION.crt"
+  keyFile = "/certs/firefly.DOCKER_DOMAIN_NAME_EXTENSION.key"

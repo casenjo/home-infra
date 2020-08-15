@@ -37,4 +37,12 @@ else
     generateCerts $PIHOLE_CERT_FILE_NAME
 fi
 
+# Generate Firefly certs
+FIREFLY_CERT_FILE_NAME=firefly.$DOCKER_DOMAIN_NAME_EXTENSION
+if test -f "certs/$FIREFLY_CERT_FILE_NAME.key"; then
+    echo "Firefly certificates already exist"
+else
+    generateCerts $FIREFLY_CERT_FILE_NAME
+fi
+
 updateTraefikConfigs
