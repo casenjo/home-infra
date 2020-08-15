@@ -174,6 +174,7 @@ services:
       - "DB_USERNAME=${FIREFLY_DB_USERNAME}"
       - "DB_PASSWORD=${FIREFLY_DB_PASSWORD}"
       - "DB_CONNECTION=${FIREFLY_DB_CONNECTION}"
+      - "TRUSTED_PROXIES=**"
     volumes:
       - "firefly_iii_export:/var/www/firefly-iii/storage/export"
       - "firefly_iii_upload:/var/www/firefly-iii/storage/upload"
@@ -189,7 +190,8 @@ services:
       # Add a router named "firefly" to the routers, which is reached when
       # host is equal to firefly.${DOCKER_DOMAIN_NAME_EXTENSION}
       - "traefik.http.routers.firefly.rule=Host(`firefly.${DOCKER_DOMAIN_NAME_EXTENSION}`)"
-      - "traefik.http.routers.firefly.entrypoints=web"
+      - "traefik.http.routers.firefly.entrypoints=websecure"
+      - "traefik.http.routers.firefly.tls=true"
 
   unifi-controller:
     image: linuxserver/unifi-controller
