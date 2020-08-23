@@ -1,5 +1,6 @@
 .env
 env-traefik
+env-recipes
 traefik/*.toml.bak
 traefik/*.toml
 certs/*.crt
