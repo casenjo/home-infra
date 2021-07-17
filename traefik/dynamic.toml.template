@@ -17,3 +17,8 @@
 [[tls.certificates]]
   certFile = "/certs/firefly.DOCKER_DOMAIN_NAME_EXTENSION.crt"
   keyFile = "/certs/firefly.DOCKER_DOMAIN_NAME_EXTENSION.key"
+
+# Recipes certs
+[[tls.certificates]]
+  certFile = "/certs/recipes.DOCKER_DOMAIN_NAME_EXTENSION.crt"
+  keyFile = "/certs/recipes.DOCKER_DOMAIN_NAME_EXTENSION.key"

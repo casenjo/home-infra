@@ -45,4 +45,12 @@ else
     generateCerts $FIREFLY_CERT_FILE_NAME
 fi
 
+# Generate Recipes certs
+RECIPES_CERT_FILE_NAME=recipes.$DOCKER_DOMAIN_NAME_EXTENSION
+if test -f "certs/$RECIPES_CERT_FILE_NAME.key"; then
+    echo "Recipes certificates already exist"
+else
+    generateCerts $RECIPES_CERT_FILE_NAME
+fi
+
 updateTraefikConfigs

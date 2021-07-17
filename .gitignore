@@ -1,6 +1,10 @@
 .env
 env-traefik
+env-recipes
 traefik/*.toml.bak
 traefik/*.toml
 certs/*.crt
 certs/*.key
+recipes/postgres
+recipes/mediafiles
+recipes/staticfiles

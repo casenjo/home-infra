@@ -215,6 +215,69 @@ services:
       - "unifi-controller:/config"
     restart: unless-stopped
 
+  recipes_db:
+    image: postgres:11-alpine
+    container_name: recipes_db
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
+    hostname: recipes_db
+    networks:
+      traefik:
+        ipv4_address: 172.20.0.9
+    restart: unless-stopped
+    env_file:
+      - ./env-recipes
+    volumes:
+      - ./recipes/postgres:/var/lib/postgresql/data
+
+  recipes_web:
+    image: vabene1111/recipes
+    container_name: recipes_web
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
+    hostname: recipes_web
+    networks:
+      traefik:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+    env_file:
+      - ./env-recipes
+    volumes:
+      - ./recipes/staticfiles:/opt/recipes/staticfiles
+      - ./recipes/mediafiles:/opt/recipes/mediafiles
+    depends_on:
+      - recipes_db
+
+  recipes_nginx:
+    image: nginx:mainline-alpine
+    container_name: recipes_nginx
+    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
+    hostname: recipes_nginx
+    networks:
+      traefik:
+        ipv4_address: 172.20.0.8
+    restart: unless-stopped
+    env_file:
+      - ./env-recipes
+    volumes:
+      - ./recipes/nginx/conf.d:/etc/nginx/conf.d
+      - ./recipes/mediafiles:/media
+    depends_on:
+      - recipes_web
+    labels:
+      # Enable Traefik for this container (required when
+      # --providers.docker.exposedbydefault=false is in use)
+      - "traefik.enable=true"
+      # Use the special traefik network to communicate with Traefik
+      - "traefik.docker.network=traefik"
+      # Router: recipes
+      # Domain: recipes.${DOCKER_DOMAIN_NAME_EXTENSION}
+      # Entrypoint: websecure
+      - "traefik.http.routers.recipes.rule=Host(`recipes.${DOCKER_DOMAIN_NAME_EXTENSION}`)"
+      - "traefik.http.routers.recipes.entrypoints=websecure"
+      - "traefik.http.routers.recipes.tls=true"
+      # Service: recipes
+      # Port:    80
+      - "traefik.http.services.recipes.loadbalancer.server.port=80"
+
 networks:
   traefik:
     ipam:
