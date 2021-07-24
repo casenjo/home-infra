@@ -288,13 +288,13 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     environment:
-      - "PUID=1000"
-      - "PGID=1000"
+      - "PUID=${WIREGUARD_PUID}"
+      - "GUID=${WIREGUARD_GUID}"
       - "TZ=America/Toronto"
-      - "SERVERURL=thelair.no-ip.org"
+      - "SERVERURL=${WIREGUARD_DOMAIN}"
       - "SERVERPORT=51825" #optional
-      - "PEERS=ghost,ighost,osxghost" #optional
-      - "PEERDNS=172.20.0.3" #optional
+      - "PEERS=${WIREGUARD_PEERS}" #optional
+      - "PEERDNS=172.20.0.3" # To the Pihole container using its Docker IP
       - "INTERNAL_SUBNET=10.12.22.0" #optional
       - "ALLOWEDIPS=0.0.0.0/0" #optional
     volumes:
