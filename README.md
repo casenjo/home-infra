@@ -12,6 +12,7 @@ The following services will run:
 - OpenVPN: Private VPN setup to allow use of Pi-Hole from outside
 - UniFi Controller: Management of Ubiquiti gear
 - Tandoor Recipes: Host your family's recipe book
+- Wireguard: Private VPN setup
 
 ## Setup
 - Make a copy of `env-example` and save it as `.env`
@@ -28,4 +29,4 @@ The following services will run:
 ## How to use
 
 - If none of the services are running: `docker-compose -d up`
-- If you need to bring up just one of them: `docker-compose -d up pihole|cloudflared|traefik|portainer|firefly|openvpn|unifi|recipes_nginx|recipes_web|recipes_db`
+- If you need to bring up just one of them: `docker-compose -d up pihole|cloudflared|traefik|portainer|firefly|openvpn|unifi|recipes_nginx|recipes_web|recipes_db|wireguard`
