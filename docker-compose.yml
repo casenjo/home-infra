@@ -295,7 +295,7 @@ services:
       - "SERVERPORT=51825" #optional
       - "PEERS=${WIREGUARD_PEERS}" #optional
       - "PEERDNS=172.20.0.3" # To the Pihole container using its Docker IP
-      - "INTERNAL_SUBNET=10.12.22.0" #optional
+      - "INTERNAL_SUBNET=${WIREGUARD_INTERNAL_SUBNET}" #optional
       - "ALLOWEDIPS=0.0.0.0/0" #optional
     volumes:
       - ./wireguard/config:/config
