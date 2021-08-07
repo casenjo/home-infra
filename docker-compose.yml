@@ -290,9 +290,9 @@ services:
     environment:
       - "PUID=${WIREGUARD_PUID}"
       - "GUID=${WIREGUARD_GUID}"
-      - "TZ=America/Toronto"
+      - "TZ=${WIREGUARD_TIMEZONE}"
       - "SERVERURL=${WIREGUARD_DOMAIN}"
-      - "SERVERPORT=51825" #optional
+      - "SERVERPORT=${WIREGUARD_SERVERPORT}" #optional
       - "PEERS=${WIREGUARD_PEERS}" #optional
       - "PEERDNS=172.20.0.3" # To the Pihole container using its Docker IP
       - "INTERNAL_SUBNET=${WIREGUARD_INTERNAL_SUBNET}" #optional
