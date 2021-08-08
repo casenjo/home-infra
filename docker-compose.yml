@@ -278,6 +278,38 @@ services:
       # Port:    80
       - "traefik.http.services.recipes.loadbalancer.server.port=80"
 
+  wireguard:
+    image: ghcr.io/linuxserver/wireguard
+    container_name: wireguard
+    networks:
+      traefik:
+        ipv4_address: 172.20.0.11
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - "PUID=${WIREGUARD_PUID}"
+      - "GUID=${WIREGUARD_GUID}"
+      - "TZ=${WIREGUARD_TIMEZONE}"
+      - "SERVERURL=${WIREGUARD_DOMAIN}"
+      - "SERVERPORT=${WIREGUARD_SERVERPORT}" #optional
+      - "PEERS=${WIREGUARD_PEERS}" #optional
+      - "PEERDNS=172.20.0.3" # To the Pihole container using its Docker IP
+      - "INTERNAL_SUBNET=${WIREGUARD_INTERNAL_SUBNET}" #optional
+      - "ALLOWEDIPS=0.0.0.0/0" #optional
+    volumes:
+      - ./wireguard/config:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - target: 51820
+        published: 51820
+        protocol: udp
+    dns:
+      - 172.20.0.3 # To the Pihole container using its Docker IP
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+
 networks:
   traefik:
     ipam:
