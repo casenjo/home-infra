@@ -13,6 +13,7 @@ The following services will run:
 - UniFi Controller: Management of Ubiquiti gear
 - Tandoor Recipes: Host your family's recipe book
 - Wireguard: Private VPN setup
+- Plex Media Server: Stream all your media while connected to your VPN
 
 ## Setup
 - Make a copy of `env-example` and save it as `.env`
@@ -21,6 +22,7 @@ The following services will run:
 - In `.env`, fill out and/or change the values for the necessary environment variables
   **Note:** The value for DOCKER_DOMAIN_NAME_EXTENSION in `env-traefik` must match the one in `.env`
 - In `env-recipes` generate a value for SECRET_KEY and a Postgres password (if desired)
+- Create the directories for the Plex containers volumes (`/plex/media`, `/plex/transcode`, `/plex/database`)
 - Run `setup.sh` to generate self-signed certs and the Traefik config files.
 - If you're running Ubuntu then make sure to visit [this](https://github.com/pi-hole/docker-pi-hole#installing-on-ubuntu) to see what's needed for the DNS resolving
 - Build the OpenVPN service by going into the `openvpn` folder and running `docker build -t ovpn:latest .`
