@@ -300,7 +300,7 @@ services:
       - "TZ=${PLEX_TIMEZONE}"
     volumes:
       - /plex/database:/config
-      - /plex/transcode:/transcode
+      - /plex/ramtranscode:/transcode
       - /plex/media:/data
     ports:
       - target: 32400
