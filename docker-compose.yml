@@ -142,22 +142,6 @@ services:
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls=true"
 
-  openvpn:
-    image: ovpn:latest
-    container_name: openvpn
-    hostname: openvpn
-    networks:
-      traefik:
-        ipv4_address: 172.20.0.6
-    ports:
-      - target: 1194
-        published: 1194
-        protocol: udp
-    volumes:
-      - "ovpn-data-lair:/etc/openvpn"
-    cap_add:
-      - NET_ADMIN
-
   firefly:
     image: jc5x/firefly-iii:latest
     container_name: firefly
@@ -366,5 +350,4 @@ volumes:
   portainer_data:
   firefly_iii_export:
   firefly_iii_upload:
-  ovpn-data-lair:
   unifi-controller:
