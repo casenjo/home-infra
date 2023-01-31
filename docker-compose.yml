@@ -4,7 +4,6 @@ services:
   traefik:
     image: traefik:v2.2
     container_name: traefik
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: traefik
     networks:
       traefik:
@@ -44,7 +43,6 @@ services:
   pihole:
     image: pihole/pihole:latest
     container_name: pihole
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: pi-hole
     networks:
       traefik:
@@ -113,7 +111,6 @@ services:
   portainer:
     image: portainer/portainer:latest
     container_name: portainer
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: portainer
     networks:
       traefik:
@@ -145,7 +142,6 @@ services:
   firefly:
     image: jc5x/firefly-iii:latest
     container_name: firefly
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: firefly
     networks:
       traefik:
@@ -202,7 +198,6 @@ services:
   recipes_db:
     image: postgres:11-alpine
     container_name: recipes_db
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: recipes_db
     networks:
       traefik:
@@ -216,7 +211,6 @@ services:
   recipes_web:
     image: vabene1111/recipes
     container_name: recipes_web
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: recipes_web
     networks:
       traefik:
@@ -233,7 +227,6 @@ services:
   recipes_nginx:
     image: nginx:mainline-alpine
     container_name: recipes_nginx
-    domainname: ${DOCKER_DOMAIN_NAME_EXTENSION}
     hostname: recipes_nginx
     networks:
       traefik:
